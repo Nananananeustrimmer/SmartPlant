@@ -35,4 +35,4 @@ private:
   Point deviceStatus;
 };
 
-#endif // OBSTACLE_DETECTION_HPP
+#endif // NETWORKING_H

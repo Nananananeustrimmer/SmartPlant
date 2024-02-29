@@ -1,38 +1,21 @@
-#include "DHT.h"
 #include "networking.h"
+#include "dhtController.h"
 #include <Arduino.h>
 
-#define DHTPIN 32
-
-#define DHTTYPE DHT11
-
-DHT dht(DHTPIN, DHTTYPE);
+DhtController dhtController;
 Networking networking;
 
 void setup() {
   Serial.begin(9600);
   networking.setupWifi();
-  dht.begin();
-}
-
-bool isDhtReady(int humidity, int temperature) {
-  if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return false;
-  }
-  return true;
+  dhtController.setupDht();
 }
 
 void loop() {
-  
-  int humidity = dht.readHumidity();
-  int temperature = dht.readTemperature();
-
-  if (isDhtReady(humidity, temperature)) {
-    networking.addData("humidity", humidity);
-    networking.addData("temperature", temperature);
+  if (dhtController.isDhtReady()) {
+    networking.addData("humidity", dhtController.getHumidity());
+    networking.addData("temperature", dhtController.getTemperature());
   }
-
   networking.updateData();
   Serial.println("Wait 10s");
   delay(10000);
