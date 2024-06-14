@@ -3,6 +3,7 @@
 #include "dhtController.h"
 #include "moistureSensorController.h"
 #include "relayController.h"
+#include "rfController.h"
 #include <Arduino.h>
 
 DhtController dhtController;
@@ -10,6 +11,7 @@ LdrController ldrController;
 Networking networking;
 MoistureSensorController moistureSensorController;
 RelayController relayController;
+RfController rfController;
 
 void setup() {
   Serial.begin(9600);
@@ -17,6 +19,7 @@ void setup() {
   ldrController.setupLdr();
   dhtController.setupDht();
   relayController.setupRelay();
+  rfController.setupRf();
 }
 
 void loop() {
@@ -25,10 +28,6 @@ void loop() {
     networking.addData("temperature", dhtController.getTemperature());
   }
   networking.updateData();
-  Serial.println("is low:");
-  Serial.println(ldrController.isLightTooLow());
-  Serial.println("is moist:");
-  Serial.println(moistureSensorController.isMoist());
 
   if (moistureSensorController.isMoist() && relayController.isRelayOn())
   {
@@ -36,6 +35,14 @@ void loop() {
   } else if (!moistureSensorController.isMoist() && !relayController.isRelayOn())
   {
     relayController.turnRelayOn();
+  }
+
+  if(ldrController.isLightTooLow() && !rfController.isKakuOn())
+  {
+    rfController.turnKaKuOn();
+  } else if (!ldrController.isLightTooLow() && rfController.isKakuOn())
+  {
+    rfController.turnKaKuOff();
   }
   delay(5000);
 }
